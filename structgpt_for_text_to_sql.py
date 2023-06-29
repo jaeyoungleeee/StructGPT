@@ -335,6 +335,7 @@ class Solver:
         self.selected_relations = []
 
     def forward_wo_icl_v1(self, question, db_id):
+        args = self.args
         self.LLM.reset_history()
         self.reset_history()
 
@@ -510,6 +511,7 @@ def parse_args():
     parser.add_argument('--schema_path', default=None)
     parser.add_argument('--debug', action="store_true")
     parser.add_argument('--prompt_path')
+    parser.add_argument('--db_path')
     parser.add_argument('--prompt_name', default="chat", )
     parser.add_argument('--icl', action="store_true", )
     parser.add_argument('--demonstrations', default=None)

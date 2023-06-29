@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 python3 structgpt_for_text_to_sql.py \
---api_key ./api_key.txt --num_process 21 \
+--api_key ./api_key.txt --num_process 2 \
 --prompt_path ./prompts/prompt_for_spider.json --prompt_name chat_v1 \
 --input_path ./data/spider/dev.jsonl \
 --output_path ./outputs/spider/output_wo_icl_v1.jsonl \

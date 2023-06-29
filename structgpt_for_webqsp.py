@@ -4,10 +4,15 @@ import logging
 import os
 import pickle
 import re
+import time
+from collections import defaultdict
 
 import openai
+from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModel
+
 from KnowledgeBase.KG_api import KnowledgeGraph
-from KnowledgeBase.sparql_executor import *
+# from KnowledgeBase.sparql_executor import *
 import multiprocessing as mp
 
 
@@ -423,6 +428,7 @@ class Solver:
 
 
     def forward_v2(self, question, tpe_str, tpe_id):
+        args = self.args
         self.LLM.reset_history()
         self.SLM.reset_cur_ents([tpe_id])
         self.reset_history()
@@ -1099,11 +1105,15 @@ def main(args, all_data, idx, api_key):
 
     print("Start PID %d and save to %s" % (os.getpid(), output_path))
     solver = Solver(args)
+    print("solver init")
 
     count = 0
     valid_count = 0
+    print(f"output path is {output_path}")
     with open(output_path, "w") as f:
+        print(1)
         with open(chat_log_path, "w") as fclog:
+            print(2)
             for sample in tqdm(all_data, total=len(all_data)):
                 # if sample["ID"] not in ["test_10943"]:
                 #     continue

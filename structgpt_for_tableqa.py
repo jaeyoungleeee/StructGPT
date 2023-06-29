@@ -157,6 +157,7 @@ class Solver:
         self.selected_relations = []
 
     def forward(self, question, table):
+        args = self.args
         self.LLM.reset_history()
         self.reset_history()
 

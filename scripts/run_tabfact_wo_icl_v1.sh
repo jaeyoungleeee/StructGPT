@@ -1,5 +1,5 @@
 python3 structgpt_for_tableqa.py \
---api_key ./api_key.txt --num_process 37 \
+--api_key ./api_key.txt --num_process 2 \
 --prompt_path ./prompts/prompt_for_tabfact.json --prompt_name chat_v1 \
 --input_path ./data/tabfact/tab_fact_test.json \
 --output_path ./outputs/tabfact/output_wo_icl_v1.jsonl \

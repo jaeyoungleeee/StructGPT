@@ -1,5 +1,5 @@
 python3 structgpt_for_webqsp.py \
---api_key ./api_key_for_kg.txt --num_process 14 \
+--api_key ./api_key_for_kg.txt --num_process 2 \
 --prompt_path ./prompts/prompt_for_webqsp.json --max_tokens 300 --prompt_name chat_v1 \
 --kg_source_path ./data/webqsp/subgraph_2hop_triples.npy \
 --ent_type_path ./data/webqsp/ent_type_ary.npy \
