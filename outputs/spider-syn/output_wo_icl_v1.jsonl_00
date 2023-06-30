@@ -1,0 +1,1 @@
+{"db_id": "concert_singer", "SpiderQuestion": "How many singers do we have?", "SpiderSynQuestion": "How many vocalists do we have?", "query": "SELECT count(*) FROM singer", "Prediction": "COUNT(*) FROM singer WHERE Is_male = 0;"}

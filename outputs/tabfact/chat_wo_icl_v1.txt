@@ -1,0 +1,178 @@
+0
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "tony lema be in the top 5 for the master tournament , the us open , and the open championship?", first look at the available columns in the table: tournament, wins, top - 5, top - 10, top - 25, events, cuts made. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: tournament, top - 5
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "tony lema be in the top 5 for the master tournament , the us open , and the open championship?", once you have selected the relevant columns tournament, top - 5, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (tournament, masters tournament); (top - 5, 1)
+item 2: (tournament, us open); (top - 5, 2)
+item 3: (tournament, the open championship); (top - 5, 2)
+item 4: (tournament, pga championship); (top - 5, 0)
+item 5: (tournament, totals); (top - 5, 5)
+To answer "tony lema be in the top 5 for the master tournament , the us open , and the open championship?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 1, item 2, item 3
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (tournament, masters tournament); (top - 5, 1)
+item 2: (tournament, us open); (top - 5, 2)
+item 3: (tournament, the open championship); (top - 5, 2)
+According to the table, is the statement "tony lema be in the top 5 for the master tournament , the us open , and the open championship?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: entailed
+------------------------------------------
+0
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship?", first look at the available columns in the table: tournament, wins, top - 5, top - 10, top - 25, events, cuts made. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: tournament, events
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship?", once you have selected the relevant columns tournament, events, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (tournament, masters tournament); (events, 4)
+item 2: (tournament, us open); (events, 6)
+item 3: (tournament, the open championship); (events, 3)
+item 4: (tournament, pga championship); (events, 5)
+item 5: (tournament, totals); (events, 18)
+To answer "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 1, item 2, item 3, item 4
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (tournament, masters tournament); (events, 4)
+item 2: (tournament, us open); (events, 6)
+item 3: (tournament, the open championship); (events, 3)
+item 4: (tournament, pga championship); (events, 5)
+According to the table, is the statement "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: entailed
+------------------------------------------
+0
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "the only tournament that tony lema win in be the open championship?", first look at the available columns in the table: tournament, wins, top - 5, top - 10, top - 25, events, cuts made. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: tournament, wins
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "the only tournament that tony lema win in be the open championship?", once you have selected the relevant columns tournament, wins, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (tournament, masters tournament); (wins, 0)
+item 2: (tournament, us open); (wins, 0)
+item 3: (tournament, the open championship); (wins, 1)
+item 4: (tournament, pga championship); (wins, 0)
+item 5: (tournament, totals); (wins, 1)
+To answer "the only tournament that tony lema win in be the open championship?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 3
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (tournament, the open championship); (wins, 1)
+According to the table, is the statement "the only tournament that tony lema win in be the open championship?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: entailed
+------------------------------------------
+640
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "reuben morgan and darlene zschech be the only worship leader who be feature on multiple song?", first look at the available columns in the table: , song, english translation, original album, composer, worship leader, supporting vocal, duration. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: song, worship leader
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "reuben morgan and darlene zschech be the only worship leader who be feature on multiple song?", once you have selected the relevant columns , song, worship leader, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (, 1); (song, para exaltarte); (worship leader, joel houston)
+item 2: (, 2); (song, correré); (worship leader, toni romero)
+item 3: (, 3); (song, hosanna); (worship leader, darlene zschech)
+item 4: (, 4); (song, desde mi interior); (worship leader, jad gillies)
+item 5: (, 5); (song, canción del desierto); (worship leader, annie garratt)
+item 6: (, 6); (song, en la cruz); (worship leader, darlene zschech)
+item 7: (, 7); (song, rey salvador); (worship leader, dave ware)
+item 8: (, 8); (song, poderoso para salvar); (worship leader, reuben morgan)
+item 9: (, 9); (song, soy libre); (worship leader, matt crocker)
+item 10: (, 10); (song, poderoso); (worship leader, jad gillies)
+item 11: (, 11); (song, sólo cristo); (worship leader, brooke fraser)
+item 12: (, 12); (song, es nuestro dios); (worship leader, reuben morgan & darlene zschech)
+item 13: (, 13); (song, eres mi fortaleza); (worship leader, reuben morgan)
+To answer "reuben morgan and darlene zschech be the only worship leader who be feature on multiple song?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 8, item 12
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (, 8); (song, poderoso para salvar); (worship leader, reuben morgan)
+item 2: (, 12); (song, es nuestro dios); (worship leader, reuben morgan & darlene zschech)
+According to the table, is the statement "reuben morgan and darlene zschech be the only worship leader who be feature on multiple song?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: entailed
+------------------------------------------
+640
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "joel houston compose 5 of the song on the album con todo?", first look at the available columns in the table: , song, english translation, original album, composer, worship leader, supporting vocal, duration. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: song, composer
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "joel houston compose 5 of the song on the album con todo?", once you have selected the relevant columns , song, composer, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (, 1); (song, para exaltarte); (composer, joel houston)
+item 2: (, 2); (song, correré); (composer, joel houston)
+item 3: (, 3); (song, hosanna); (composer, brooke fraser)
+item 4: (, 4); (song, desde mi interior); (composer, joel houston)
+item 5: (, 5); (song, canción del desierto); (composer, brooke fraser)
+item 6: (, 6); (song, en la cruz); (composer, darlene zschech & reuben morgan)
+item 7: (, 7); (song, rey salvador); (composer, marty sampson & mia fields)
+item 8: (, 8); (song, poderoso para salvar); (composer, reuben morgan & ben fielding)
+item 9: (, 9); (song, soy libre); (composer, joel houston , matt crocker)
+item 10: (, 10); (song, poderoso); (composer, reuben morgan & ben fielding)
+item 11: (, 11); (song, sólo cristo); (composer, brooke fraser)
+item 12: (, 12); (song, es nuestro dios); (composer, reuben morgan)
+item 13: (, 13); (song, eres mi fortaleza); (composer, reuben morgan)
+To answer "joel houston compose 5 of the song on the album con todo?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 1, item 2, item 4, item 9
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (, 1); (song, para exaltarte); (composer, joel houston)
+item 2: (, 2); (song, correré); (composer, joel houston)
+item 3: (, 4); (song, desde mi interior); (composer, joel houston)
+item 4: (, 9); (song, soy libre); (composer, joel houston , matt crocker)
+According to the table, is the statement "joel houston compose 5 of the song on the album con todo?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: refuted
+------------------------------------------
+640
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "reuben morgan be the only support vocalist for the album con todo?", first look at the available columns in the table: , song, english translation, original album, composer, worship leader, supporting vocal, duration. Which columns are most relevant to answering the question? Your output format is only the “Columns: ColumnName1, ColumnName2, ColumnName3...” form, no other form, with no explanation.
+******
+Columns: song, supporting vocal
+******
+You need to answer a question using a table with multiple rows and column headings. Specifically, you need to select the relevant columns and rows from the table and then obtain a sub-table that is relevant to the question. Then, use the sub-table to answer the question. 
+Therefore, to answer "reuben morgan be the only support vocalist for the album con todo?", once you have selected the relevant columns , song, supporting vocal, your next step is to identify the necessary rows to answer the question based on their column values. Below is the list of rows in the table, arranged in order. Each row is represented by one line, starting with the row name followed by its corresponding column name and value pairs:
+item 1: (, 1); (song, para exaltarte); (supporting vocal, none)
+item 2: (, 2); (song, correré); (supporting vocal, none)
+item 3: (, 3); (song, hosanna); (supporting vocal, none)
+item 4: (, 4); (song, desde mi interior); (supporting vocal, none)
+item 5: (, 5); (song, canción del desierto); (supporting vocal, none)
+item 6: (, 6); (song, en la cruz); (supporting vocal, none)
+item 7: (, 7); (song, rey salvador); (supporting vocal, none)
+item 8: (, 8); (song, poderoso para salvar); (supporting vocal, darlene zschech)
+item 9: (, 9); (song, soy libre); (supporting vocal, none)
+item 10: (, 10); (song, poderoso); (supporting vocal, darlene zschech)
+item 11: (, 11); (song, sólo cristo); (supporting vocal, none)
+item 12: (, 12); (song, es nuestro dios); (supporting vocal, none)
+item 13: (, 13); (song, eres mi fortaleza); (supporting vocal, none)
+To answer "reuben morgan be the only support vocalist for the album con todo?", which rows should be considered? Your output format is only the “Rows: RowName1, RowName2, RowName3...” form, no other form, with no explanation. Your response should only contain the row names from the above candidates such as item 1, item 2.
+******
+Rows: item 8, item 10
+******
+The ordered list below shows the rows of a table, with each line displaying a different row along with its corresponding column name and value pairs. The format for each pair is (column name, value). The table contains:
+item 1: (, 8); (song, poderoso para salvar); (supporting vocal, darlene zschech)
+item 2: (, 10); (song, poderoso); (supporting vocal, darlene zschech)
+According to the table, is the statement "reuben morgan be the only support vocalist for the album con todo?" ture? If you think the statement is true, only output "Yes.". If you think the statement is not ture, only output "No.".
+******
+No.
+Answers: refuted
+------------------------------------------
