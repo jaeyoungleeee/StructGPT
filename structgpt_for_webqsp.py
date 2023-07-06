@@ -442,6 +442,7 @@ class Solver:
             # select
             all_rel_one_hop = self.SLM.get_retrieval_relations(first_flag=iterative_step == 0)
             if len(all_rel_one_hop) == 0:
+                # TODO: should update to vicuna infer method
                 final_answers = self.LLM.get_response_v2(question, "final_query_template")
                 break
 
@@ -1111,9 +1112,7 @@ def main(args, all_data, idx, api_key):
     valid_count = 0
     print(f"output path is {output_path}")
     with open(output_path, "w") as f:
-        print(1)
         with open(chat_log_path, "w") as fclog:
-            print(2)
             for sample in tqdm(all_data, total=len(all_data)):
                 # if sample["ID"] not in ["test_10943"]:
                 #     continue
