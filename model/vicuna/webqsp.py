@@ -1,9 +1,12 @@
 import json
 import re
+from logging import getLogger
 
 from deprecated import deprecated
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+logger = getLogger('vicuna-debug')
 
 
 class WebQSPVicuna:
@@ -28,8 +31,10 @@ class WebQSPVicuna:
             return prompt[prompt_name]
 
     def _prepare_model(self, model_name):
+        logger.debug("model init")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        logger.debug("model load finished")
 
     # public
     def reset_history(self):

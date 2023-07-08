@@ -12,6 +12,7 @@ from transformers import AutoTokenizer, AutoModel
 
 from KnowledgeBase.KG_api import KnowledgeGraph
 from model.chatgpt.webqsp import WebQSPChatGPT
+from model.vicuna.webqsp import WebQSPVicuna
 
 
 class Retriever:
@@ -124,7 +125,9 @@ class Retriever:
 class Solver:
     def __init__(self, args):
         self.args = args
-        self.LLM = WebQSPChatGPT(args=args, prompt_path=args.prompt_path, prompt_name=args.prompt_name,
+        # self.LLM = WebQSPChatGPT(args=args, prompt_path=args.prompt_path, prompt_name=args.prompt_name,
+                                # max_tokens=args.max_tokens)
+        self.LLM = WebQSPVicuna(args=args, prompt_path=args.prompt_path, prompt_name=args.prompt_name,
                                 max_tokens=args.max_tokens)
         self.SLM = Retriever(args)
         self.max_serialization_tokens = args.max_llm_input_tokens
