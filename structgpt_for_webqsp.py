@@ -1,20 +1,16 @@
 import argparse
 import json
 import logging
+# from KnowledgeBase.sparql_executor import *
+import multiprocessing as mp
 import os
 import pickle
-import re
-import time
 from collections import defaultdict
 
-import openai
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModel
 
 from KnowledgeBase.KG_api import KnowledgeGraph
-# from KnowledgeBase.sparql_executor import *
-import multiprocessing as mp
-
 from model.vicuna.webqsp import ChatGPT
 
 
