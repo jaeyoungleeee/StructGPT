@@ -1,8 +1,7 @@
 import json
 import re
-import time
 
-import openai
+from deprecated import deprecated
 
 
 class WebQSPChatGPT:
@@ -35,6 +34,7 @@ class WebQSPChatGPT:
     def reset_history_contents(self):
         self.history_contents = []
 
+    @deprecated
     def get_response(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
             message = self._create_message(input_text, turn_type, tpe_name)
@@ -55,6 +55,7 @@ class WebQSPChatGPT:
             response = self._parse_result(message, turn_type)
         return response
 
+    @deprecated
     def get_response_v1(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
             message = self._create_message_v1(input_text, turn_type)
@@ -87,6 +88,7 @@ class WebQSPChatGPT:
 
         return response
 
+    @deprecated
     def _create_message(self, input_text, turn_type, tpe_name):
         if turn_type == "initial":  # the initial query
             instruction = self.prompt[turn_type]['instruction']
@@ -112,6 +114,7 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
+    @deprecated
     def _create_message_v1(self, input_text, turn_type):
         if turn_type == "instruction":  # the initial query
             instruction = self.prompt['instruction']
@@ -227,6 +230,7 @@ class WebQSPChatGPT:
         return message
 
     def _get_model_output(self, messages: str) -> str:
+        """
         while True:
             try:
                 res = openai.ChatCompletion.create(
@@ -256,7 +260,9 @@ class WebQSPChatGPT:
                 time.sleep(20)
             # except openai.error.InvalidRequestError:
             #     print('openai.error.InvalidRequestError\nRetrying...')
+        """
 
+    @deprecated
     def _parse_result(self, result, turn_type):
         content = result['content'].strip()
         if turn_type in ["initial", "question_template"]:
@@ -275,6 +281,7 @@ class WebQSPChatGPT:
 
         return content
 
+    @deprecated
     def _parse_result_v1(self, result, turn_type):
         content = result['content'].strip()
         if turn_type in ["ask_question", "continue"]:
