@@ -11,7 +11,6 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModel
 
 from KnowledgeBase.KG_api import KnowledgeGraph
-from model.chatgpt.webqsp import WebQSPChatGPT
 from model.vicuna.webqsp import WebQSPVicuna
 
 
@@ -31,9 +30,9 @@ class Retriever:
     # 直接获得triples
     def get_retrieval_information_direct(self, response, tpe, first_flag=False, gold_relations=None):
         triples, tails = self.KG.get_facts_1hop_direct(response, tpe, self.cur_ents, self.tokenizer, self.retriever,
-                                                        self.args.topk,
-                                                        self.args.filter_score, self.args.max_triples_per_relation,
-                                                        first_flag, gold_relations)
+                                                       self.args.topk,
+                                                       self.args.filter_score, self.args.max_triples_per_relation,
+                                                       first_flag, gold_relations)
         self.reset_cur_ents(tails)
         # self.reset_last_ents(self.cur_ents)
         return triples
@@ -126,7 +125,7 @@ class Solver:
     def __init__(self, args):
         self.args = args
         # self.LLM = WebQSPChatGPT(args=args, prompt_path=args.prompt_path, prompt_name=args.prompt_name,
-                                # max_tokens=args.max_tokens)
+        # max_tokens=args.max_tokens)
         self.LLM = WebQSPVicuna(args=args, prompt_path=args.prompt_path, prompt_name=args.prompt_name,
                                 max_tokens=args.max_tokens)
         self.SLM = Retriever(args)
@@ -136,7 +135,6 @@ class Solver:
         self.selected_relations = []
         # 暂时添加一个selected_sub_questions = []来存放解析的子问题
         self.selected_sub_questions = []
-
 
     def forward_v2(self, question, tpe_str, tpe_id):
         args = self.args
@@ -154,6 +152,7 @@ class Solver:
             all_rel_one_hop = self.SLM.get_retrieval_relations(first_flag=iterative_step == 0)
             if len(all_rel_one_hop) == 0:
                 # TODO: should update to vicuna infer method
+                print(f'question is {question}')
                 final_answers = self.LLM.get_response_v2(question, "final_query_template")
                 break
 
@@ -192,7 +191,8 @@ class Solver:
                 constraints_candidate = self.serialize_constraints(cvt_triples)
                 if args.debug:
                     print("Step-%d: constraints_candidate:%s" % (iterative_step, constraints_candidate))
-                constraint_response = self.LLM.get_response_v2((question, constraints_candidate, tpe_str), "choose_constraints")
+                constraint_response = self.LLM.get_response_v2((question, constraints_candidate, tpe_str),
+                                                               "choose_constraints")
                 self.log.append(constraint_response)
                 if args.debug:
                     print("Step-%d: constraint_response:%s" % (iterative_step, constraint_response))
@@ -804,6 +804,7 @@ class Solver:
         tails = self.SLM.get_tails_list(cur_ents)
         return tails
 
+
 def main(args, all_data, idx, api_key):
     import openai
     openai.api_key = api_key
@@ -817,17 +818,17 @@ def main(args, all_data, idx, api_key):
 
     print("Start PID %d and save to %s" % (os.getpid(), output_path))
     solver = Solver(args)
-    print("solver init")
 
     count = 0
     valid_count = 0
-    print(f"output path is {output_path}")
+
     with open(output_path, "w") as f:
         with open(chat_log_path, "w") as fclog:
-            for sample in tqdm(all_data, total=len(all_data)):
+            for sample in tqdm(all_data[:2], total=len(all_data[:2])):
                 # if sample["ID"] not in ["test_10943"]:
                 #     continue
                 try:
+                    print(f'sample is {sample}')
                     question = sample["Question"]
                     tpe_name = sample["TopicEntityName"]
                     tpe_id = sample['TopicEntityID']
@@ -837,9 +838,9 @@ def main(args, all_data, idx, api_key):
                 except openai.error.InvalidRequestError as e:
                     print(e)
                     continue
-                except Exception as e:
-                    logging.exception(e)
-                    continue
+                # except Exception as e:
+                # logging.exception(e)
+                # continue
 
                 chat = sample["ID"] + "\n" + "\n******\n".join(chat_history) + "\nAnswers: " + str(
                     sample['Answers']) + "\n------------------------------------------\n"
@@ -851,10 +852,9 @@ def main(args, all_data, idx, api_key):
                     print(prediction)
                     print("---------------------")
                 sample["Prediction"] = prediction
-                f.write(json.dumps(sample) + "\n")
+            f.write(json.dumps(sample) + "\n")
 
     print("---------------PID %d end with %d/%d samples--------------" % (os.getpid(), valid_count, count))
-
 
 
 def parse_args():
@@ -882,7 +882,8 @@ def parse_args():
     parser.add_argument('--max_triples_per_relation', default=40, type=int)
     parser.add_argument('--max_llm_input_tokens', default=3400, type=int)
     parser.add_argument('--num_process', default=1, type=int, help='the number of multi-process')
-
+    parser.add_argument('--model_type', default='vicuna')
+    parser.add_argument('--model_name', default='AlekseyKorshuk/vicuna-7b')
 
     args = parser.parse_args()
 
@@ -916,23 +917,25 @@ if __name__ == '__main__':
     #     all_data = [data for data in all_data if data['ID'] not in already_id]
     #     print("There are %d test examples need to be processed." % len(all_data))
 
-    if args.num_process == 1:
+    if args.model_type == "vicuna":
         main(args, all_data, idx=-1, api_key=args.api_key)
-    else:
-        num_each_split = int(len(all_data) / args.num_process)
-        p = mp.Pool(args.num_process)
-        for idx in range(args.num_process):
-            start = idx * num_each_split
-            if idx == args.num_process - 1:
-                end = max((idx + 1) * num_each_split, len(all_data))
-            else:
-                end = (idx + 1) * num_each_split
-            split_data = all_data[start:end]
-            try:
-                p.apply_async(main, args=(args, split_data, idx, all_keys[idx]))
-            except Exception as e:
-                logging.exception(e)
 
-        p.close()
-        p.join()
-        print("All of the child processes over!")
+    elif args.model_type == "chatgpt":
+        if args.num_process == 1:
+            main(args, all_data, idx=-1, api_key=args.api_key)
+        else:
+            num_each_split = int(len(all_data) / args.num_process)
+            p = mp.Pool(args.num_process)
+            for idx in range(args.num_process):
+                start = idx * num_each_split
+                if idx == args.num_process - 1:
+                    end = max((idx + 1) * num_each_split, len(all_data))
+                else:
+                    end = (idx + 1) * num_each_split
+                split_data = all_data[start:end]
+                p.apply_async(main, args=(args, split_data, idx, all_keys[idx])).get()
+
+            p.close()
+            p.join()
+            print("All of the child processes over!")
+

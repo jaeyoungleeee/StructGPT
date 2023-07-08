@@ -1,12 +1,11 @@
 import json
 import re
-from logging import getLogger
+from datetime import datetime
+from typing import List
 
+import torch
 from deprecated import deprecated
-
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
-logger = getLogger('vicuna-debug')
 
 
 class WebQSPVicuna:
@@ -18,7 +17,7 @@ class WebQSPVicuna:
         self.prompt = self._load_prompt_template(prompt_path, prompt_name)
 
         # TODO
-        self._prepare_model('lmsys/vicuna-7b-v1.3')
+        self._prepare_model(args.model_name)
 
         self.idx_mapping = {"0": "first", "1": "second", "2": "third", "3": "fourth", "4": "fifth", "5": "sixth",
                             "6": "seventh",
@@ -31,10 +30,19 @@ class WebQSPVicuna:
             return prompt[prompt_name]
 
     def _prepare_model(self, model_name):
-        logger.debug("model init")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        torch.cuda.empty_cache()
+        print(f"model init: {model_name}")
+        started_at = datetime.now()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+        tokenized_finishd_at = datetime.now()
+        print(f"tokenizer elapsed time: {tokenized_finishd_at - started_at}")
+
         self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        logger.debug("model load finished")
+        model_loaded_at = datetime.now()
+        print(f"model loading elapsed time: {model_loaded_at - tokenized_finishd_at}")
+        self.model.to("cuda")
+
+        print("model load finished")
 
     # public
     def reset_history(self):
@@ -92,11 +100,14 @@ class WebQSPVicuna:
         return response
 
     # public
+    @torch.no_grad()
     def get_response_v2(self, input_text, turn_type):
         message = self._create_message_v2(input_text, turn_type)
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
         message = self._get_model_output(self.history_messages)
+
+        print(f'message is {message}')
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
         response = message['content'].strip()
@@ -244,38 +255,17 @@ class WebQSPVicuna:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    def _get_model_output(self, messages: str) -> str:
-        """
-        while True:
-            try:
-                res = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages,
-                    temperature=0,
-                    max_tokens=self.max_tokens,
-                    top_p=1,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                )
-                return res['choices'][0]['message']
-            except openai.error.RateLimitError:
-                print('openai.error.RateLimitError\nRetrying...')
-                time.sleep(30)
-            except openai.error.ServiceUnavailableError:
-                print('openai.error.ServiceUnavailableError\nRetrying...')
-                time.sleep(20)
-            except openai.error.Timeout:
-                print('openai.error.Timeout\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIError:
-                print('openai.error.APIError\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIConnectionError:
-                print('openai.error.APIConnectionError\nRetrying...')
-                time.sleep(20)
-            # except openai.error.InvalidRequestError:
-            #     print('openai.error.InvalidRequestError\nRetrying...')
-        """
+    def _get_model_output(self, messages: List[str]) -> str:
+        input_tokens = self.tokenizer.encode(str(messages), return_tensors="pt")
+        print(f"input_tokens :: {input_tokens}")
+
+        outputs = self.model.generate(input_tokens, top_p=1)
+
+        print(f"outputs :: {outputs}")
+        output_str = self.tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens=True)
+        print(f"output :: {output_str}")
+
+        return output_str
 
     @deprecated
     def _parse_result(self, result, turn_type):
