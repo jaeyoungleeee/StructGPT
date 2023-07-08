@@ -16,6 +16,25 @@ class WebQSPChatGPT:
                             "6": "seventh",
                             "7": "eighth", "8": "ninth", "9": "tenth"}
 
+    def _load_prompt_template(self, prompt_path, prompt_name):
+        if prompt_path.endswith(".json"):
+            with open(prompt_path, "rb") as f:
+                prompt = json.load(f)
+            return prompt[prompt_name]
+
+    # public
+    def reset_history(self):
+        self.history_messages = []
+        self.history_contents = []
+
+    # public
+
+    def reset_history_messages(self):
+        self.history_messages = []
+
+    def reset_history_contents(self):
+        self.history_contents = []
+
     def get_response(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
             message = self._create_message(input_text, turn_type, tpe_name)
@@ -54,6 +73,18 @@ class WebQSPChatGPT:
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             response = self._parse_result_v1(message, turn_type)
+        return response
+
+    # public
+    def get_response_v2(self, input_text, turn_type):
+        message = self._create_message_v2(input_text, turn_type)
+        self.history_messages.append(message)
+        self.history_contents.append(message['content'])
+        message = self._query_API_to_get_message(self.history_messages)
+        self.history_messages.append(message)
+        self.history_contents.append(message['content'])
+        response = message['content'].strip()
+
         return response
 
     def _create_message(self, input_text, turn_type, tpe_name):
@@ -112,6 +143,84 @@ class WebQSPChatGPT:
             template = self.prompt['relation_rerank']
             question, can_rels = input_text
             input_text = template.format(question=question, relations=can_rels)
+        else:
+            raise NotImplementedError
+        message = {'role': 'user', 'content': input_text}
+        return message
+
+    def _create_message_v2(self, input_text, turn_type):
+        if turn_type == "instruction":  # the initial query
+            instruction = self.prompt['instruction']
+            input_text = instruction
+        # ykm
+        # elif turn_type == "init_relation_rerank":
+        #     template = self.prompt['init_relation_rerank']
+        #     can_rels, question, tpe, hop = input_text
+        #     if hop == 1:
+        #         hop = "first"
+        #     elif hop == 2:
+        #         hop = "second"
+        #     elif hop == 3:
+        #         hop = "third"
+        #     input_text = template.format(question=question, tpe=tpe, relations=can_rels, hop=hop)
+        elif turn_type == "init_relation_rerank":
+            template = self.prompt['init_relation_rerank']
+            can_rels, question, tpe = input_text
+            input_text = template.format(question=question, tpe=tpe, relations=can_rels)
+        elif turn_type == "constraints_flag":
+            template = self.prompt['constraints_flag']
+            question, tpe, selected_relations = input_text
+            if len(selected_relations) > 1:
+                selected_relations = "are " + ", ".join(selected_relations)
+            else:
+                selected_relations = "is " + ", ".join(selected_relations)
+            input_text = template.format(question=question, tpe=tpe, selected_relations=selected_relations)
+        elif turn_type == "ask_final_answer_or_next_question":
+            question, serialized_facts = input_text
+            template = self.prompt['ask_final_answer_or_next_question']
+            input_text = template.format(facts=serialized_facts, question=question)
+        elif turn_type == "choose_constraints":
+            question, relation_tails, tpe_name = input_text
+            template = self.prompt['choose_constraints']
+            input_text = template.format(question=question, relation_tails=relation_tails, tpe=tpe_name)
+        elif turn_type == "final_query_template":
+            template = self.prompt['final_query_template']
+            input_text = template.format(question=input_text)
+        elif turn_type == 'relation_rerank':
+            template = self.prompt['relation_rerank']
+            can_rels, question, tpe, selected_relations = input_text
+            # 暂时注释掉
+            # if len(selected_relations) > 1:
+            #     selected_relations = "are " + ", ".join(selected_relations)
+            # else:
+            #     selected_relations = "is " + ", ".join(selected_relations)
+            selected_relations = "".join(selected_relations)
+            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
+                                         selected_relations=selected_relations)
+        elif turn_type == 'relation_rerank_2hop':
+            template = self.prompt['relation_rerank_2hop']
+            can_rels, question, tpe, sub_question, selected_relations = input_text
+            sub_question = ", ".join(sub_question)
+            selected_relations = ", ".join(selected_relations)
+            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
+                                         first_sub_question=sub_question, first_relation=selected_relations)
+        elif turn_type == 'relation_rerank_3hop':
+            template = self.prompt['relation_rerank_3hop']
+            can_rels, question, tpe, sub_question, selected_relations = input_text
+            first_sub_question = sub_question[0]
+            second_sub_question = sub_question[1]
+            fisrt_relation = selected_relations[0]
+            second_relation = selected_relations[1]
+            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
+                                         first_sub_question=first_sub_question, first_relation=fisrt_relation,
+                                         second_sub_question=second_sub_question, second_relation=second_relation)
+        elif turn_type == 'direct_ask_final_answer':
+            template = self.prompt['direct_ask_final_answer']
+            question = input_text
+            input_text = template.format(question=question)
+        elif turn_type == 'final_answer_organize':
+            template = self.prompt['final_answer_organize']
+            input_text = template
         else:
             raise NotImplementedError
         message = {'role': 'user', 'content': input_text}
@@ -188,111 +297,3 @@ class WebQSPChatGPT:
         content = result['content'].strip()
 
         return content
-
-    # public
-    def reset_history(self):
-        self.history_messages = []
-        self.history_contents = []
-
-    # public
-    def reset_history_messages(self):
-        self.history_messages = []
-
-    def reset_history_contents(self):
-        self.history_contents = []
-
-    def _load_prompt_template(self, prompt_path, prompt_name):
-        if prompt_path.endswith(".json"):
-            with open(prompt_path, "rb") as f:
-                prompt = json.load(f)
-            return prompt[prompt_name]
-
-    # public
-    def get_response_v2(self, input_text, turn_type):
-        message = self._create_message_v2(input_text, turn_type)
-        self.history_messages.append(message)
-        self.history_contents.append(message['content'])
-        message = self._query_API_to_get_message(self.history_messages)
-        self.history_messages.append(message)
-        self.history_contents.append(message['content'])
-        response = message['content'].strip()
-
-        return response
-
-    def _create_message_v2(self, input_text, turn_type):
-        if turn_type == "instruction":  # the initial query
-            instruction = self.prompt['instruction']
-            input_text = instruction
-        # ykm
-        # elif turn_type == "init_relation_rerank":
-        #     template = self.prompt['init_relation_rerank']
-        #     can_rels, question, tpe, hop = input_text
-        #     if hop == 1:
-        #         hop = "first"
-        #     elif hop == 2:
-        #         hop = "second"
-        #     elif hop == 3:
-        #         hop = "third"
-        #     input_text = template.format(question=question, tpe=tpe, relations=can_rels, hop=hop)
-        elif turn_type == "init_relation_rerank":
-            template = self.prompt['init_relation_rerank']
-            can_rels, question, tpe = input_text
-            input_text = template.format(question=question, tpe=tpe, relations=can_rels)
-        elif turn_type == "constraints_flag":
-            template = self.prompt['constraints_flag']
-            question, tpe, selected_relations = input_text
-            if len(selected_relations) > 1:
-                selected_relations = "are " + ", ".join(selected_relations)
-            else:
-                selected_relations = "is " + ", ".join(selected_relations)
-            input_text = template.format(question=question, tpe=tpe, selected_relations=selected_relations)
-        elif turn_type == "ask_final_answer_or_next_question":
-            question, serialized_facts = input_text
-            template = self.prompt['ask_final_answer_or_next_question']
-            input_text = template.format(facts=serialized_facts, question=question)
-        elif turn_type == "choose_constraints":
-            question, relation_tails, tpe_name = input_text
-            template = self.prompt['choose_constraints']
-            input_text = template.format(question=question, relation_tails=relation_tails, tpe=tpe_name)
-        elif turn_type == "final_query_template":
-            template = self.prompt['final_query_template']
-            input_text = template.format(question=input_text)
-        elif turn_type == 'relation_rerank':
-            template = self.prompt['relation_rerank']
-            can_rels, question, tpe, selected_relations = input_text
-            # 暂时注释掉
-            # if len(selected_relations) > 1:
-            #     selected_relations = "are " + ", ".join(selected_relations)
-            # else:
-            #     selected_relations = "is " + ", ".join(selected_relations)
-            selected_relations = "".join(selected_relations)
-            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
-                                         selected_relations=selected_relations)
-        elif turn_type == 'relation_rerank_2hop':
-            template = self.prompt['relation_rerank_2hop']
-            can_rels, question, tpe, sub_question, selected_relations = input_text
-            sub_question = ", ".join(sub_question)
-            selected_relations = ", ".join(selected_relations)
-            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
-                                         first_sub_question=sub_question, first_relation=selected_relations)
-        elif turn_type == 'relation_rerank_3hop':
-            template = self.prompt['relation_rerank_3hop']
-            can_rels, question, tpe, sub_question, selected_relations = input_text
-            first_sub_question = sub_question[0]
-            second_sub_question = sub_question[1]
-            fisrt_relation = selected_relations[0]
-            second_relation = selected_relations[1]
-            input_text = template.format(question=question, relations=can_rels, tpe=tpe,
-                                         first_sub_question=first_sub_question, first_relation = fisrt_relation,
-                                         second_sub_question=second_sub_question, second_relation=second_relation)
-        elif turn_type == 'direct_ask_final_answer':
-            template = self.prompt['direct_ask_final_answer']
-            question = input_text
-            input_text = template.format(question=question)
-        elif turn_type == 'final_answer_organize':
-            template = self.prompt['final_answer_organize']
-            input_text = template
-        else:
-            raise NotImplementedError
-        message = {'role': 'user', 'content': input_text}
-        return message
