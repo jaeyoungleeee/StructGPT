@@ -49,7 +49,7 @@ class WebQSPChatGPT:
             message = self._create_message(input_text, turn_type, tpe_name)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self._query_API_to_get_message(self.history_messages)
+            message = self._get_model_output(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             response = self._parse_result(message, turn_type)
@@ -69,7 +69,7 @@ class WebQSPChatGPT:
             message = self._create_message_v1(input_text, turn_type)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self._query_API_to_get_message(self.history_messages)
+            message = self._get_model_output(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             response = self._parse_result_v1(message, turn_type)
@@ -80,7 +80,7 @@ class WebQSPChatGPT:
         message = self._create_message_v2(input_text, turn_type)
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
-        message = self._query_API_to_get_message(self.history_messages)
+        message = self._get_model_output(self.history_messages)
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
         response = message['content'].strip()
@@ -226,7 +226,7 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    def _query_API_to_get_message(self, messages):
+    def _get_model_output(self, messages: str) -> str:
         while True:
             try:
                 res = openai.ChatCompletion.create(
