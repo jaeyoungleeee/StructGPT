@@ -5,7 +5,7 @@ import time
 import openai
 
 
-class ChatGPT:
+class WebQSPChatGPT:
     def __init__(self, args, prompt_path, prompt_name, max_tokens):
         self.args = args
         self.history_messages = []
