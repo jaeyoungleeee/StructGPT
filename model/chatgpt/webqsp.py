@@ -11,14 +11,14 @@ class WebQSPChatGPT:
         self.history_messages = []
         self.history_contents = []
         self.max_tokens = max_tokens
-        self.prompt = self.load_prompt_template(prompt_path, prompt_name)
+        self.prompt = self._load_prompt_template(prompt_path, prompt_name)
         self.idx_mapping = {"0": "first", "1": "second", "2": "third", "3": "fourth", "4": "fifth", "5": "sixth",
                             "6": "seventh",
                             "7": "eighth", "8": "ninth", "9": "tenth"}
 
     def get_response(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
-            message = self.create_message(input_text, turn_type, tpe_name)
+            message = self._create_message(input_text, turn_type, tpe_name)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             print("query API to get message:\n%s" % message['content'])
@@ -27,18 +27,18 @@ class WebQSPChatGPT:
             # response = self.parse_result(message)
             response = input("input the returned response:")
         else:
-            message = self.create_message(input_text, turn_type, tpe_name)
+            message = self._create_message(input_text, turn_type, tpe_name)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self.query_API_to_get_message(self.history_messages)
+            message = self._query_API_to_get_message(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            response = self.parse_result(message, turn_type)
+            response = self._parse_result(message, turn_type)
         return response
 
     def get_response_v1(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
-            message = self.create_message_v1(input_text, turn_type)
+            message = self._create_message_v1(input_text, turn_type)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             print("query API to get message:\n%s" % message['content'])
@@ -47,16 +47,16 @@ class WebQSPChatGPT:
             # response = self.parse_result(message)
             response = input("input the returned response:")
         else:
-            message = self.create_message_v1(input_text, turn_type)
+            message = self._create_message_v1(input_text, turn_type)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self.query_API_to_get_message(self.history_messages)
+            message = self._query_API_to_get_message(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            response = self.parse_result_v1(message, turn_type)
+            response = self._parse_result_v1(message, turn_type)
         return response
 
-    def create_message(self, input_text, turn_type, tpe_name):
+    def _create_message(self, input_text, turn_type, tpe_name):
         if turn_type == "initial":  # the initial query
             instruction = self.prompt[turn_type]['instruction']
             template = self.prompt[turn_type]['init_template']
@@ -81,7 +81,7 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    def create_message_v1(self, input_text, turn_type):
+    def _create_message_v1(self, input_text, turn_type):
         if turn_type == "instruction":  # the initial query
             instruction = self.prompt['instruction']
             input_text = instruction
@@ -117,7 +117,7 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    def query_API_to_get_message(self, messages):
+    def _query_API_to_get_message(self, messages):
         while True:
             try:
                 res = openai.ChatCompletion.create(
@@ -148,7 +148,7 @@ class WebQSPChatGPT:
             # except openai.error.InvalidRequestError:
             #     print('openai.error.InvalidRequestError\nRetrying...')
 
-    def parse_result(self, result, turn_type):
+    def _parse_result(self, result, turn_type):
         content = result['content'].strip()
         if turn_type in ["initial", "question_template"]:
             if "should be" in content:
@@ -166,7 +166,7 @@ class WebQSPChatGPT:
 
         return content
 
-    def parse_result_v1(self, result, turn_type):
+    def _parse_result_v1(self, result, turn_type):
         content = result['content'].strip()
         if turn_type in ["ask_question", "continue"]:
             if "the simple question:" in content:
@@ -184,7 +184,7 @@ class WebQSPChatGPT:
 
         return content
 
-    def parse_result_v2(self, result, turn_type):
+    def _parse_result_v2(self, result, turn_type):
         content = result['content'].strip()
 
         return content
@@ -201,7 +201,7 @@ class WebQSPChatGPT:
     def reset_history_contents(self):
         self.history_contents = []
 
-    def load_prompt_template(self, prompt_path, prompt_name):
+    def _load_prompt_template(self, prompt_path, prompt_name):
         if prompt_path.endswith(".json"):
             with open(prompt_path, "rb") as f:
                 prompt = json.load(f)
@@ -209,17 +209,17 @@ class WebQSPChatGPT:
 
     # public
     def get_response_v2(self, input_text, turn_type):
-        message = self.create_message_v2(input_text, turn_type)
+        message = self._create_message_v2(input_text, turn_type)
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
-        message = self.query_API_to_get_message(self.history_messages)
+        message = self._query_API_to_get_message(self.history_messages)
         self.history_messages.append(message)
         self.history_contents.append(message['content'])
         response = message['content'].strip()
 
         return response
 
-    def create_message_v2(self, input_text, turn_type):
+    def _create_message_v2(self, input_text, turn_type):
         if turn_type == "instruction":  # the initial query
             instruction = self.prompt['instruction']
             input_text = instruction
