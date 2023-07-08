@@ -3,6 +3,8 @@ import re
 
 from deprecated import deprecated
 
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 
 class WebQSPVicuna:
     def __init__(self, args, prompt_path, prompt_name, max_tokens):
@@ -11,6 +13,10 @@ class WebQSPVicuna:
         self.history_contents = []
         self.max_tokens = max_tokens
         self.prompt = self._load_prompt_template(prompt_path, prompt_name)
+
+        # TODO
+        self._prepare_model('lmsys/vicuna-7b-v1.3')
+
         self.idx_mapping = {"0": "first", "1": "second", "2": "third", "3": "fourth", "4": "fifth", "5": "sixth",
                             "6": "seventh",
                             "7": "eighth", "8": "ninth", "9": "tenth"}
@@ -20,6 +26,10 @@ class WebQSPVicuna:
             with open(prompt_path, "rb") as f:
                 prompt = json.load(f)
             return prompt[prompt_name]
+
+    def _prepare_model(self, model_name):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name)
 
     # public
     def reset_history(self):
