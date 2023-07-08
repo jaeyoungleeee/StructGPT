@@ -189,10 +189,12 @@ class WebQSPChatGPT:
 
         return content
 
+    # public
     def reset_history(self):
         self.history_messages = []
         self.history_contents = []
 
+    # public
     def reset_history_messages(self):
         self.history_messages = []
 
@@ -205,6 +207,7 @@ class WebQSPChatGPT:
                 prompt = json.load(f)
             return prompt[prompt_name]
 
+    # public
     def get_response_v2(self, input_text, turn_type):
         message = self.create_message_v2(input_text, turn_type)
         self.history_messages.append(message)
