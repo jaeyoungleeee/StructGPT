@@ -1,7 +1,8 @@
 import json
 import re
+import time
 
-from deprecated import deprecated
+import openai
 
 
 class WebQSPChatGPT:
@@ -10,34 +11,14 @@ class WebQSPChatGPT:
         self.history_messages = []
         self.history_contents = []
         self.max_tokens = max_tokens
-        self.prompt = self._load_prompt_template(prompt_path, prompt_name)
+        self.prompt = self.load_prompt_template(prompt_path, prompt_name)
         self.idx_mapping = {"0": "first", "1": "second", "2": "third", "3": "fourth", "4": "fifth", "5": "sixth",
                             "6": "seventh",
                             "7": "eighth", "8": "ninth", "9": "tenth"}
 
-    def _load_prompt_template(self, prompt_path, prompt_name):
-        if prompt_path.endswith(".json"):
-            with open(prompt_path, "rb") as f:
-                prompt = json.load(f)
-            return prompt[prompt_name]
-
-    # public
-    def reset_history(self):
-        self.history_messages = []
-        self.history_contents = []
-
-    # public
-
-    def reset_history_messages(self):
-        self.history_messages = []
-
-    def reset_history_contents(self):
-        self.history_contents = []
-
-    @deprecated
     def get_response(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
-            message = self._create_message(input_text, turn_type, tpe_name)
+            message = self.create_message(input_text, turn_type, tpe_name)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             print("query API to get message:\n%s" % message['content'])
@@ -46,19 +27,18 @@ class WebQSPChatGPT:
             # response = self.parse_result(message)
             response = input("input the returned response:")
         else:
-            message = self._create_message(input_text, turn_type, tpe_name)
+            message = self.create_message(input_text, turn_type, tpe_name)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self._get_model_output(self.history_messages)
+            message = self.query_API_to_get_message(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            response = self._parse_result(message, turn_type)
+            response = self.parse_result(message, turn_type)
         return response
 
-    @deprecated
     def get_response_v1(self, input_text, turn_type, tpe_name=None):
         if self.args.debug:
-            message = self._create_message_v1(input_text, turn_type)
+            message = self.create_message_v1(input_text, turn_type)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
             print("query API to get message:\n%s" % message['content'])
@@ -67,29 +47,16 @@ class WebQSPChatGPT:
             # response = self.parse_result(message)
             response = input("input the returned response:")
         else:
-            message = self._create_message_v1(input_text, turn_type)
+            message = self.create_message_v1(input_text, turn_type)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            message = self._get_model_output(self.history_messages)
+            message = self.query_API_to_get_message(self.history_messages)
             self.history_messages.append(message)
             self.history_contents.append(message['content'])
-            response = self._parse_result_v1(message, turn_type)
+            response = self.parse_result_v1(message, turn_type)
         return response
 
-    # public
-    def get_response_v2(self, input_text, turn_type):
-        message = self._create_message_v2(input_text, turn_type)
-        self.history_messages.append(message)
-        self.history_contents.append(message['content'])
-        message = self._get_model_output(self.history_messages)
-        self.history_messages.append(message)
-        self.history_contents.append(message['content'])
-        response = message['content'].strip()
-
-        return response
-
-    @deprecated
-    def _create_message(self, input_text, turn_type, tpe_name):
+    def create_message(self, input_text, turn_type, tpe_name):
         if turn_type == "initial":  # the initial query
             instruction = self.prompt[turn_type]['instruction']
             template = self.prompt[turn_type]['init_template']
@@ -114,8 +81,7 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    @deprecated
-    def _create_message_v1(self, input_text, turn_type):
+    def create_message_v1(self, input_text, turn_type):
         if turn_type == "instruction":  # the initial query
             instruction = self.prompt['instruction']
             input_text = instruction
@@ -151,7 +117,106 @@ class WebQSPChatGPT:
         message = {'role': 'user', 'content': input_text}
         return message
 
-    def _create_message_v2(self, input_text, turn_type):
+    def query_API_to_get_message(self, messages):
+        while True:
+            try:
+                res = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    temperature=0,
+                    max_tokens=self.max_tokens,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                )
+                return res['choices'][0]['message']
+            except openai.error.RateLimitError:
+                print('openai.error.RateLimitError\nRetrying...')
+                time.sleep(30)
+            except openai.error.ServiceUnavailableError:
+                print('openai.error.ServiceUnavailableError\nRetrying...')
+                time.sleep(20)
+            except openai.error.Timeout:
+                print('openai.error.Timeout\nRetrying...')
+                time.sleep(20)
+            except openai.error.APIError:
+                print('openai.error.APIError\nRetrying...')
+                time.sleep(20)
+            except openai.error.APIConnectionError:
+                print('openai.error.APIConnectionError\nRetrying...')
+                time.sleep(20)
+            # except openai.error.InvalidRequestError:
+            #     print('openai.error.InvalidRequestError\nRetrying...')
+
+    def parse_result(self, result, turn_type):
+        content = result['content'].strip()
+        if turn_type in ["initial", "question_template"]:
+            if "should be" in content:
+                content = content.split("should be")[1].strip()
+                if content.startswith('"') and content.endswith('"'):
+                    content = content[1:-1]
+                else:
+                    matchObj = re.search(r'"(.*?)"', content)
+                    if matchObj is not None:
+                        content = matchObj.group()
+                        content = content[1:-1]
+                    else:
+                        content = content.strip().strip('"')
+                        print("Not exactly parse, we directly use content: %s" % content)
+
+        return content
+
+    def parse_result_v1(self, result, turn_type):
+        content = result['content'].strip()
+        if turn_type in ["ask_question", "continue"]:
+            if "the simple question:" in content:
+                content = content.split("the simple question:")[1].strip()
+                if content.startswith('"') and content.endswith('"'):
+                    content = content[1:-1]
+                else:
+                    matchObj = re.search(r'"(.*?)"', content)
+                    if matchObj is not None:
+                        content = matchObj.group()
+                        content = content[1:-1]
+                    else:
+                        content = content.strip().strip('"')
+                        print("Not exactly parse, we directly use content: %s" % content)
+
+        return content
+
+    def parse_result_v2(self, result, turn_type):
+        content = result['content'].strip()
+
+        return content
+
+    def reset_history(self):
+        self.history_messages = []
+        self.history_contents = []
+
+    def reset_history_messages(self):
+        self.history_messages = []
+
+    def reset_history_contents(self):
+        self.history_contents = []
+
+    def load_prompt_template(self, prompt_path, prompt_name):
+        if prompt_path.endswith(".json"):
+            with open(prompt_path, "rb") as f:
+                prompt = json.load(f)
+            return prompt[prompt_name]
+
+    def get_response_v2(self, input_text, turn_type):
+        message = self.create_message_v2(input_text, turn_type)
+        self.history_messages.append(message)
+        self.history_contents.append(message['content'])
+        message = self.query_API_to_get_message(self.history_messages)
+        self.history_messages.append(message)
+        self.history_contents.append(message['content'])
+        response = message['content'].strip()
+
+        return response
+
+    def create_message_v2(self, input_text, turn_type):
         if turn_type == "instruction":  # the initial query
             instruction = self.prompt['instruction']
             input_text = instruction
@@ -215,7 +280,7 @@ class WebQSPChatGPT:
             fisrt_relation = selected_relations[0]
             second_relation = selected_relations[1]
             input_text = template.format(question=question, relations=can_rels, tpe=tpe,
-                                         first_sub_question=first_sub_question, first_relation=fisrt_relation,
+                                         first_sub_question=first_sub_question, first_relation = fisrt_relation,
                                          second_sub_question=second_sub_question, second_relation=second_relation)
         elif turn_type == 'direct_ask_final_answer':
             template = self.prompt['direct_ask_final_answer']
@@ -228,79 +293,3 @@ class WebQSPChatGPT:
             raise NotImplementedError
         message = {'role': 'user', 'content': input_text}
         return message
-
-    def _get_model_output(self, messages: str) -> str:
-        """
-        while True:
-            try:
-                res = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages,
-                    temperature=0,
-                    max_tokens=self.max_tokens,
-                    top_p=1,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                )
-                return res['choices'][0]['message']
-            except openai.error.RateLimitError:
-                print('openai.error.RateLimitError\nRetrying...')
-                time.sleep(30)
-            except openai.error.ServiceUnavailableError:
-                print('openai.error.ServiceUnavailableError\nRetrying...')
-                time.sleep(20)
-            except openai.error.Timeout:
-                print('openai.error.Timeout\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIError:
-                print('openai.error.APIError\nRetrying...')
-                time.sleep(20)
-            except openai.error.APIConnectionError:
-                print('openai.error.APIConnectionError\nRetrying...')
-                time.sleep(20)
-            # except openai.error.InvalidRequestError:
-            #     print('openai.error.InvalidRequestError\nRetrying...')
-        """
-
-    @deprecated
-    def _parse_result(self, result, turn_type):
-        content = result['content'].strip()
-        if turn_type in ["initial", "question_template"]:
-            if "should be" in content:
-                content = content.split("should be")[1].strip()
-                if content.startswith('"') and content.endswith('"'):
-                    content = content[1:-1]
-                else:
-                    matchObj = re.search(r'"(.*?)"', content)
-                    if matchObj is not None:
-                        content = matchObj.group()
-                        content = content[1:-1]
-                    else:
-                        content = content.strip().strip('"')
-                        print("Not exactly parse, we directly use content: %s" % content)
-
-        return content
-
-    @deprecated
-    def _parse_result_v1(self, result, turn_type):
-        content = result['content'].strip()
-        if turn_type in ["ask_question", "continue"]:
-            if "the simple question:" in content:
-                content = content.split("the simple question:")[1].strip()
-                if content.startswith('"') and content.endswith('"'):
-                    content = content[1:-1]
-                else:
-                    matchObj = re.search(r'"(.*?)"', content)
-                    if matchObj is not None:
-                        content = matchObj.group()
-                        content = content[1:-1]
-                    else:
-                        content = content.strip().strip('"')
-                        print("Not exactly parse, we directly use content: %s" % content)
-
-        return content
-
-    def _parse_result_v2(self, result, turn_type):
-        content = result['content'].strip()
-
-        return content
