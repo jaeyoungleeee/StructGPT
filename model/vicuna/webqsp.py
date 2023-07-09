@@ -1,6 +1,5 @@
 import json
 import re
-from datetime import datetime
 from typing import List
 
 import torch
@@ -29,20 +28,22 @@ class WebQSPVicuna:
                 prompt = json.load(f)
             return prompt[prompt_name]
 
-    def _prepare_model(self, model_name):
-        torch.cuda.empty_cache()
-        print(f"model init: {model_name}")
-        started_at = datetime.now()
+    def _prepare_model(self, model_name, args):
+        # set tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-        tokenized_finishd_at = datetime.now()
-        print(f"tokenizer elapsed time: {tokenized_finishd_at - started_at}")
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        model_loaded_at = datetime.now()
-        print(f"model loading elapsed time: {model_loaded_at - tokenized_finishd_at}")
-        self.model.to("cuda")
+        # set model
+        model = AutoModelForCausalLM.from_pretrained(model_name)
 
-        print("model load finished")
+        # load to multi gpus
+        n_gpus = torch.cuda.device_count()
+        print(f"n_gpus:: {n_gpus}") # n_gpus:: 2
+
+        model = torch.nn.DataParallel(model, device_ids=list(range(n_gpus)))
+        model.half()
+        model.cuda()
+
+        self.model = model
 
     # public
     def reset_history(self):
