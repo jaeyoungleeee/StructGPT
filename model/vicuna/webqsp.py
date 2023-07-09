@@ -28,7 +28,7 @@ class WebQSPVicuna:
                 prompt = json.load(f)
             return prompt[prompt_name]
 
-    def _prepare_model(self, model_name, args):
+    def _prepare_model(self, model_name):
         # set tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 
